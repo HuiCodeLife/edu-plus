@@ -32,6 +32,12 @@
         <swagger-spring-boot-starter.version>1.9.0.RELEASE</swagger-spring-boot-starter.version>
         <elasticsearch.version>7.12.1</elasticsearch.version>
     </properties>
+    <modules>
+        <module>../xuecheng-plus-base</module>
+        <module>../xuecheng-plus-generator</module>
+        <module>../xuecheng-plus-content</module>
+        <module>../xuecheng-plus-system</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -205,25 +211,25 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <!--指定项目源码jdk的版本-->
-                    <source>1.8</source>
-                    <!--指定项目编译后的jdk的版本-->
-                    <target>1.8</target>
-                    <!--配置注解预编译-->
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${org.projectlombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>3.8.1</version>-->
+<!--                <configuration>-->
+<!--                    &lt;!&ndash;指定项目源码jdk的版本&ndash;&gt;-->
+<!--                    <source>1.8</source>-->
+<!--                    &lt;!&ndash;指定项目编译后的jdk的版本&ndash;&gt;-->
+<!--                    <target>1.8</target>-->
+<!--                    &lt;!&ndash;配置注解预编译&ndash;&gt;-->
+<!--                    <annotationProcessorPaths>-->
+<!--                        <path>-->
+<!--                            <groupId>org.projectlombok</groupId>-->
+<!--                            <artifactId>lombok</artifactId>-->
+<!--                            <version>${org.projectlombok.version}</version>-->
+<!--                        </path>-->
+<!--                    </annotationProcessorPaths>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 
             <!--责处理项目资源文件并拷贝到输出目录，如果有额外的资源文件目录则需要配置-->
             <plugin>
