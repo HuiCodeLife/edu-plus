@@ -1,0 +1,9 @@
+#微服务配置
+spring:
+  application:
+    name: content-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.88.191:3306/xcplus_content?serverTimezone=UTC&userUnicode=true&useSSL=false&
+    username: root
+    password: root
