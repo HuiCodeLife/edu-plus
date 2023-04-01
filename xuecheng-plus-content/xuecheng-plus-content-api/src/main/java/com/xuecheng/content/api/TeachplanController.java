@@ -42,4 +42,11 @@ public class TeachplanController {
         teachplanService.delTeachplanById(teachplanId);
     }
 
+    @ApiOperation("课程计划上下移")
+    @PostMapping("/teachplan/{type}/{teachplanId}")
+    public void moveTeachplan(@PathVariable String type,@PathVariable Long teachplanId){
+        teachplanService.moveById(type,teachplanId);
+    }
+
+
 }

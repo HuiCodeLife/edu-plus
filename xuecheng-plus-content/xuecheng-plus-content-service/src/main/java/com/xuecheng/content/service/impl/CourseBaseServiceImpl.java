@@ -165,6 +165,15 @@ public class CourseBaseServiceImpl extends ServiceImpl<CourseBaseMapper, CourseB
         return courseBaseInfo;
     }
 
+    @Override
+    public void deleteCouserBaseInfo(Long courseId) {
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        if ("203002".equals(courseBase.getStatus())) {
+            XueChengPlusException.cast("发布状态的课程不允许删除");
+        }
+        courseBaseMapper.deleteById(courseBase.getId());
+    }
+
     /**
      * 保存课程销售信息，原先没有则新增 ，有则更新
      * @param courseMarketNew 课程销售数据

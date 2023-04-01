@@ -83,6 +83,22 @@ public class TeachplanServiceImpl extends ServiceImpl<TeachplanMapper, Teachplan
         teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>().eq(TeachplanMedia::getTeachplanId, teachplanId));
     }
 
+    @Override
+    public void moveById(String type, Long teachplanId) {
+        // TODO bug
+        Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        if (teachplan == null) {
+            XueChengPlusException.cast("课程计划不存在");
+        }
+        if ("movedown".equals(type)) {
+            teachplan.setOrderby(teachplan.getOrderby() + 1);
+            teachplanMapper.updateById(teachplan);
+        }else {
+            teachplan.setOrderby(teachplan.getOrderby() - 1);
+            teachplanMapper.updateById(teachplan);
+        }
+    }
+
     /**
      * 根据子节点个数获取排序值 TODO
      *
