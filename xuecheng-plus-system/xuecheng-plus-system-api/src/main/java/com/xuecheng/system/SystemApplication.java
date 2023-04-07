@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author: Lin
  * @since: 2023-03-30
  */
-//@EnableSwagger2Doc
+@EnableSwagger2Doc
 @SpringBootApplication
 public class SystemApplication {
 
