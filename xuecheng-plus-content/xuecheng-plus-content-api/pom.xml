@@ -19,6 +19,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+
+
         <!-- nacos服务发现 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

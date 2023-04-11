@@ -59,3 +59,14 @@ Content-Type: application/json
 
 ### 查询某个课程的课程计划
 GET {{gateway_host}}/content/teachplan/74/tree-nodes
+
+
+### 课程计划绑定视频
+POST {{media_host}}/media/teachplan/association/media
+Content-Type: application/json
+
+{
+  "mediaId": "",
+  "fileName": "",
+  "teachplanId": ""
+}

@@ -9,9 +9,13 @@ import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.base.model.RestResponse;
 import com.xuecheng.media.mapper.MediaFilesMapper;
+import com.xuecheng.media.mapper.MediaProcessHistoryMapper;
+import com.xuecheng.media.mapper.MediaProcessMapper;
 import com.xuecheng.media.model.dto.QueryMediaParamsDto;
 import com.xuecheng.media.model.dto.UploadFileParamsDto;
 import com.xuecheng.media.model.po.MediaFiles;
+import com.xuecheng.media.model.po.MediaProcess;
+import com.xuecheng.media.model.po.MediaProcessHistory;
 import com.xuecheng.media.model.vo.UploadFileResultVo;
 import com.xuecheng.media.service.MediaFileService;
 import io.minio.*;
@@ -19,6 +23,7 @@ import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -52,6 +55,14 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     @Autowired
     private MediaFileService currentProxy;
+
+
+    @Autowired
+    private MediaProcessMapper mediaProcessMapper;
+
+    @Autowired
+    private MediaProcessHistoryMapper mediaProcessHistoryMapper;
+
 
 
     /**
@@ -223,9 +234,38 @@ public class MediaFileServiceImpl implements MediaFileService {
                 XueChengPlusException.cast("保存文件信息失败");
             }
             log.debug("保存文件信息到数据库成功,{}", mediaFiles.toString());
+
+            //添加到待处理任务表
+            addWaitingTask(mediaFiles);
+            log.debug("保存文件信息到数据库成功,{}", mediaFiles.toString());
+
         }
         return mediaFiles;
     }
+
+    /**
+     * 添加待处理任务
+     * @param mediaFiles 媒资文件信息
+     */
+    private void addWaitingTask(MediaFiles mediaFiles){
+        //文件名称
+        String filename = mediaFiles.getFilename();
+        //文件扩展名
+        String exension = filename.substring(filename.lastIndexOf("."));
+        //文件mimeType
+        String mimeType = getMimeType(exension);
+        //如果是avi视频添加到视频待处理表 TODO
+        if(mimeType.equals("video/x-msvideo")){
+            MediaProcess mediaProcess = new MediaProcess();
+            BeanUtils.copyProperties(mediaFiles,mediaProcess);
+            //未处理
+            mediaProcess.setStatus("1");
+            //失败次数默认为0
+            mediaProcess.setFailCount(0);
+            mediaProcessMapper.insert(mediaProcess);
+        }
+    }
+
 
     @Override
     public RestResponse<Boolean> checkFile(String fileMd5) {
@@ -363,10 +403,48 @@ public class MediaFileServiceImpl implements MediaFileService {
         // =====清除分块文件=====
         clearChunkFiles(chunkFileFolderPath,chunkTotal);
         return RestResponse.success(true);
-
-
-
     }
+
+    /**
+     * 从minio下载文件
+     * @param bucket 桶
+     * @param objectName 对象名称
+     * @return 下载后的文件
+     */
+    public File downloadFileFromMinIO(String bucket,String objectName){
+        //临时文件
+        File minioFile = null;
+        FileOutputStream outputStream = null;
+        try{
+            InputStream stream = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(objectName)
+                    .build());
+            //创建临时文件
+            minioFile=File.createTempFile("minio", ".merge");
+            outputStream = new FileOutputStream(minioFile);
+            IOUtils.copy(stream,outputStream);
+            return minioFile;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            if(outputStream!=null){
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public MediaFiles getFileById(String mediaId) {
+        return mediaFilesMapper.selectById(mediaId);
+    }
+
+
     /**
      * 清除分块文件
      * @param chunkFileFolderPath 分块文件路径
