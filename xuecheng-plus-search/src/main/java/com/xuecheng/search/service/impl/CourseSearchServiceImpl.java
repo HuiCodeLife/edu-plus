@@ -43,7 +43,8 @@ import java.util.Map;
  */
 @Slf4j
 @Service
-public class CourseSearchServiceImpl implements CourseSearchService {
+public class
+CourseSearchServiceImpl implements CourseSearchService {
 
     @Value("${elasticsearch.course.index}")
     private String courseIndexStore;
@@ -166,6 +167,7 @@ public class CourseSearchServiceImpl implements CourseSearchService {
 
         return pageResult;
     }
+
 
 
     private void buildAggregation(SearchRequest request) {
