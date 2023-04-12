@@ -65,9 +65,6 @@ CourseSearchServiceImpl implements CourseSearchService {
         //source源字段过虑
         String[] sourceFieldsArray = sourceFields.split(",");
         searchSourceBuilder.fetchSource(sourceFieldsArray, new String[]{});
-        if(courseSearchParam==null){
-            courseSearchParam = new SearchCourseParamDto();
-        }
         //关键字
         if(StringUtils.isNotEmpty(courseSearchParam.getKeywords())){
             //匹配关键字
@@ -78,7 +75,7 @@ CourseSearchServiceImpl implements CourseSearchService {
             multiMatchQueryBuilder.field("name",10);
             boolQueryBuilder.must(multiMatchQueryBuilder);
         }
-        //过虑
+//过虑
         if(StringUtils.isNotEmpty(courseSearchParam.getMt())){
             boolQueryBuilder.filter(QueryBuilders.termQuery("mtName",courseSearchParam.getMt()));
         }
@@ -88,6 +85,15 @@ CourseSearchServiceImpl implements CourseSearchService {
         if(StringUtils.isNotEmpty(courseSearchParam.getGrade())){
             boolQueryBuilder.filter(QueryBuilders.termQuery("grade",courseSearchParam.getGrade()));
         }
+
+        //高亮设置
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.preTags("<font class='eslight'>");
+        highlightBuilder.postTags("</font>");
+        //设置高亮字段
+        highlightBuilder.fields().add(new HighlightBuilder.Field("name"));
+        searchSourceBuilder.highlighter(highlightBuilder);
+
         //分页
         Long pageNo = pageParams.getPageNo();
         Long pageSize = pageParams.getPageSize();
@@ -96,17 +102,11 @@ CourseSearchServiceImpl implements CourseSearchService {
         searchSourceBuilder.size(Math.toIntExact(pageSize));
         //布尔查询
         searchSourceBuilder.query(boolQueryBuilder);
-        //高亮设置
-        HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.preTags("<font class='eslight'>");
-        highlightBuilder.postTags("</font>");
-        //设置高亮字段
-        highlightBuilder.fields().add(new HighlightBuilder.Field("name"));
-        searchSourceBuilder.highlighter(highlightBuilder);
+
         //请求搜索
         searchRequest.source(searchSourceBuilder);
-        //聚合设置
-        buildAggregation(searchRequest);
+
+//        buildAggregation(searchRequest);
         SearchResponse searchResponse = null;
         try {
             searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
@@ -128,44 +128,124 @@ CourseSearchServiceImpl implements CourseSearchService {
 
             String sourceAsString = hit.getSourceAsString();
             CourseIndex courseIndex = JSON.parseObject(sourceAsString, CourseIndex.class);
-
-            //取出source
-            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
-
-            //课程id
-            Long id = courseIndex.getId();
-            //取出名称
-            String name = courseIndex.getName();
-            //取出高亮字段内容
-            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-            if(highlightFields!=null){
-                HighlightField nameField = highlightFields.get("name");
-                if(nameField!=null){
-                    Text[] fragments = nameField.getFragments();
-                    StringBuffer stringBuffer = new StringBuffer();
-                    for (Text str : fragments) {
-                        stringBuffer.append(str.string());
-                    }
-                    name = stringBuffer.toString();
-
-                }
-            }
-            courseIndex.setId(id);
-            courseIndex.setName(name);
-
             list.add(courseIndex);
 
         }
         SearchPageResultDto<CourseIndex> pageResult = new SearchPageResultDto<>(list, totalHits.value,pageNo,pageSize);
 
-        //获取聚合结果
-        List<String> mtList= getAggregation(searchResponse.getAggregations(), "mtAgg");
-        List<String> stList = getAggregation(searchResponse.getAggregations(), "stAgg");
 
-        pageResult.setMtList(mtList);
-        pageResult.setStList(stList);
 
         return pageResult;
+
+//        //设置索引
+//        SearchRequest searchRequest = new SearchRequest(courseIndexStore);
+//
+//        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+//        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+//        //source源字段过虑
+//        String[] sourceFieldsArray = sourceFields.split(",");
+//        searchSourceBuilder.fetchSource(sourceFieldsArray, new String[]{});
+//        if(courseSearchParam==null){
+//            courseSearchParam = new SearchCourseParamDto();
+//        }
+//        //关键字
+//        if(StringUtils.isNotEmpty(courseSearchParam.getKeywords())){
+//            //匹配关键字
+//            MultiMatchQueryBuilder multiMatchQueryBuilder = QueryBuilders.multiMatchQuery(courseSearchParam.getKeywords(), "name", "description");
+//            //设置匹配占比
+//            multiMatchQueryBuilder.minimumShouldMatch("70%");
+//            //提升另个字段的Boost值
+//            multiMatchQueryBuilder.field("name",10);
+//            boolQueryBuilder.must(multiMatchQueryBuilder);
+//        }
+//        //过虑
+//        if(StringUtils.isNotEmpty(courseSearchParam.getMt())){
+//            boolQueryBuilder.filter(QueryBuilders.termQuery("mtName",courseSearchParam.getMt()));
+//        }
+//        if(StringUtils.isNotEmpty(courseSearchParam.getSt())){
+//            boolQueryBuilder.filter(QueryBuilders.termQuery("stName",courseSearchParam.getSt()));
+//        }
+//        if(StringUtils.isNotEmpty(courseSearchParam.getGrade())){
+//            boolQueryBuilder.filter(QueryBuilders.termQuery("grade",courseSearchParam.getGrade()));
+//        }
+//        //分页
+//        Long pageNo = pageParams.getPageNo();
+//        Long pageSize = pageParams.getPageSize();
+//        int start = (int) ((pageNo-1)*pageSize);
+//        searchSourceBuilder.from(start);
+//        searchSourceBuilder.size(Math.toIntExact(pageSize));
+//        //布尔查询
+//        searchSourceBuilder.query(boolQueryBuilder);
+//        //高亮设置
+//        HighlightBuilder highlightBuilder = new HighlightBuilder();
+//        highlightBuilder.preTags("<font class='eslight'>");
+//        highlightBuilder.postTags("</font>");
+//        //设置高亮字段
+//        highlightBuilder.fields().add(new HighlightBuilder.Field("name"));
+//        searchSourceBuilder.highlighter(highlightBuilder);
+//        //请求搜索
+//        searchRequest.source(searchSourceBuilder);
+//        //聚合设置
+//        buildAggregation(searchRequest);
+//        SearchResponse searchResponse = null;
+//        try {
+//            searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            log.error("课程搜索异常：{}",e.getMessage());
+//            return new SearchPageResultDto<CourseIndex>(new ArrayList(),0,0,0);
+//        }
+//
+//        //结果集处理
+//        SearchHits hits = searchResponse.getHits();
+//        SearchHit[] searchHits = hits.getHits();
+//        //记录总数
+//        TotalHits totalHits = hits.getTotalHits();
+//        //数据列表
+//        List<CourseIndex> list = new ArrayList<>();
+//
+//        for (SearchHit hit : searchHits) {
+//
+//            String sourceAsString = hit.getSourceAsString();
+//            CourseIndex courseIndex = JSON.parseObject(sourceAsString, CourseIndex.class);
+//
+//            //取出source
+//            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+//
+//            //课程id
+//            Long id = courseIndex.getId();
+//            //取出名称
+//            String name = courseIndex.getName();
+//            //取出高亮字段内容
+//            Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+//            if(highlightFields!=null){
+//                HighlightField nameField = highlightFields.get("name");
+//                if(nameField!=null){
+//                    Text[] fragments = nameField.getFragments();
+//                    StringBuffer stringBuffer = new StringBuffer();
+//                    for (Text str : fragments) {
+//                        stringBuffer.append(str.string());
+//                    }
+//                    name = stringBuffer.toString();
+//
+//                }
+//            }
+//            courseIndex.setId(id);
+//            courseIndex.setName(name);
+//
+//            list.add(courseIndex);
+//
+//        }
+//        SearchPageResultDto<CourseIndex> pageResult = new SearchPageResultDto<>(list, totalHits.value,pageNo,pageSize);
+//
+//        //获取聚合结果
+//        List<String> mtList= getAggregation(searchResponse.getAggregations(), "mtAgg");
+//        List<String> stList = getAggregation(searchResponse.getAggregations(), "stAgg");
+//
+//        pageResult.setMtList(mtList);
+//        pageResult.setStList(stList);
+//
+//        return pageResult;
     }
 
 
