@@ -42,7 +42,7 @@ public interface MediaFileService {
      * @param localFilePath       本地文件路径
      * @return 结果
      */
-    public UploadFileResultVo uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String localFilePath);
+    public UploadFileResultVo uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto, String localFilePath,String objectName);
 
 
     /**

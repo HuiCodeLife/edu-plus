@@ -1,5 +1,6 @@
 package com.xuecheng.content.service.jobhandler;
 
+import com.xuecheng.content.service.CoursePublishService;
 import com.xuecheng.messagesdk.model.po.MqMessage;
 import com.xuecheng.messagesdk.service.MessageProcessAbstract;
 import com.xuecheng.messagesdk.service.MqMessageService;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,6 +22,9 @@ import java.util.concurrent.TimeUnit;
 public class CoursePublishTask extends MessageProcessAbstract {
     @Autowired
     MqMessageService mqMessageService;
+
+    @Autowired
+    private CoursePublishService coursePublishService;
 
     /**
      * 任务调度入口
@@ -67,10 +72,12 @@ public class CoursePublishTask extends MessageProcessAbstract {
             log.debug("课程静态化已处理直接返回，课程id:{}",courseId);
             return ;
         }
-        try {
-            TimeUnit.SECONDS.sleep(10);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+
+        //生成静态化页面
+        File file = coursePublishService.generateCourseHtml(courseId);
+        //上传静态化页面
+        if(file!=null){
+            coursePublishService.uploadCourseHtml(courseId,file);
         }
         //保存第一阶段状态
         mqMessageService.completedStageOne(id);
