@@ -1,0 +1,7 @@
+### 申请验证码
+POST {{checkcode_host}}/checkcode/pic
+
+
+### 校验验证码
+POST {{checkcode_host}}/checkcode/verify?key=checkcode:16e4109ca1b6434eb83e4cfe836eef72&code=5w5n
+

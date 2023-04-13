@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserDetailsService {
         AuthService authService = applicationContext.getBean(authType + "_authservice", AuthService.class);
 
         //开始认证
-        authService.execute(authParamsDto)
+        XcUserExt user = authService.execute(authParamsDto);
 
         return getUserPrincipal(user);
 
