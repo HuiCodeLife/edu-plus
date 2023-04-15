@@ -52,4 +52,10 @@ public interface CoursePublishService extends IService<CoursePublish> {
     public void  uploadCourseHtml(Long courseId, File file);
 
 
+    /**
+     * 获取课程发布信息
+     * @param courseId 课程id
+     * @return 结果
+     */
+    CoursePublish getCoursePublish(Long courseId);
 }

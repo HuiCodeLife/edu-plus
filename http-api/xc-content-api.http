@@ -102,3 +102,7 @@ Content-Type: application/json
   "teachmode" : "200002",
   "validDays" : 222
 }
+
+
+### 查询课程发布信息
+GET {{content_host}}/content/r/coursepublish/2
