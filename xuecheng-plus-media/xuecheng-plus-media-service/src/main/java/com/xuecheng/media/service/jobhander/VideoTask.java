@@ -1,9 +1,9 @@
 package com.xuecheng.media.service.jobhander;
 
+import com.xuecheng.base.utils.Mp4VideoUtil;
 import com.xuecheng.media.model.po.MediaProcess;
 import com.xuecheng.media.service.MediaFileProcessService;
 import com.xuecheng.media.service.MediaFileService;
-import com.xuecheng.media.utils.Mp4VideoUtil;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;

@@ -8,7 +8,7 @@ import com.xuecheng.learning.model.po.XcCourseTables;
  *  Mapper 接口
  * </p>
  *
- * @author itcast
+ * @author lin
  */
 public interface XcCourseTablesMapper extends BaseMapper<XcCourseTables> {
 

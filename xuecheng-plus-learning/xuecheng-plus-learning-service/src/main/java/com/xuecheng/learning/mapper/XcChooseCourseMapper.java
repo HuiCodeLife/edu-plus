@@ -8,7 +8,7 @@ import com.xuecheng.learning.model.po.XcChooseCourse;
  *  Mapper 接口
  * </p>
  *
- * @author itcast
+ * @author lin
  */
 public interface XcChooseCourseMapper extends BaseMapper<XcChooseCourse> {
 

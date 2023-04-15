@@ -7,14 +7,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * @author Mr.M
- * @version 1.0
- * @description 内容管理远程接口
- * @date 2022/10/25 9:13
+ * 内容管理远程接口
+ * @author Lin
  */
 @FeignClient(value = "content-api",fallbackFactory = ContentServiceClientFallbackFactory.class)
 public interface ContentServiceClient {
 
+    /**
+     * 查询课程发布信息
+     * @param courseId 课程id
+     * @return 结果
+     */
     @ResponseBody
     @GetMapping("/content/r/coursepublish/{courseId}")
     public CoursePublish getCoursepublish(@PathVariable("courseId") Long courseId);
