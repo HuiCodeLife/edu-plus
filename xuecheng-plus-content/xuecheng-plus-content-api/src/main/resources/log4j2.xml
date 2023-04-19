@@ -7,7 +7,7 @@
     </Appenders>
     <Loggers>
         <Logger name="com.xuecheng" level="DEBUG"/>
-        <Root level="DEBUG">
+        <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

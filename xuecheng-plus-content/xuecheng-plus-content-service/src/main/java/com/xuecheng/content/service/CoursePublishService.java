@@ -58,4 +58,13 @@ public interface CoursePublishService extends IService<CoursePublish> {
      * @return 结果
      */
     CoursePublish getCoursePublish(Long courseId);
+
+
+    /**
+     * 查询缓存中的课程信息
+     * @param courseId 课程id
+     * @return 结果
+     */
+    public CoursePublish getCoursePublishCache(Long courseId);
+
 }
